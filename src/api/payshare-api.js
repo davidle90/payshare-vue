@@ -7,7 +7,6 @@ const BASE_URL = API_URL.endsWith('/') ? API_URL : `${API_URL}/`;
 
 export const payshareLogin = async (email, password) => {
     try {
-
         const loginForm = {
             'email': email,
             'password': password
@@ -29,7 +28,58 @@ export const payshareLogin = async (email, password) => {
         return { success: true, message: "Authenticated" };
 
     } catch (error) {
-        const errorMessage = 'Login failed: ' + (error.response?.data?.message || error.message);
-        return { success: false, message: errorMessage };
+        if(error.response && (error.response.status == 422 || error.response.status == 401)){
+            const errorMessage = 'Invalid email or password.'
+            return { success: false, message: errorMessage };
+        } else {
+            const errorMessage = 'Login failed: ' + error.message;
+            return { success: false, message: errorMessage };
+        }
+    }
+}
+
+export const payshareCreateGroup = async (name) => {
+    try {
+
+        const authToken = localStorage.getItem('authToken');
+
+        const groupForm = {
+            "data": {
+                "attributes": {
+                    "name": name
+                },
+                // "relationships": {
+                //     "owner": {
+                //         "data": {
+                //             "id" : 11
+                //         }
+                //     }
+                // }
+            }
+        }
+
+        console.log(groupForm);
+
+        const response = await axios.post(
+            `${BASE_URL}v1/groups`,
+            groupForm,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        console.log(response);
+        
+    } catch (error) {
+        if(error.response && (error.response.status == 422 || error.response.status == 401)){
+            const errorMessage = 'Invalid group name.'
+            return { success: false, message: errorMessage };
+        } else {
+            const errorMessage = 'Error creating group: ' + error.message;
+            return { success: false, message: errorMessage };
+        }
     }
 }
