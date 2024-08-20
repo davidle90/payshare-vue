@@ -5,12 +5,15 @@
 </template>
 
 <script>
+import { payshareLogin } from '@/api/payshare-api';
+
     export default {
         methods: {
-            login() {
-                const authToken = 'set-token';
-                localStorage.setItem('authToken', authToken);
-                this.$router.push({ name: 'home' });
+            async login() {
+                const response = await payshareLogin('admin@admin.com', 'password');
+                if(response.success){
+                    return this.$router.push('/');
+                }
             }
         }
     }
