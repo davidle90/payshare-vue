@@ -5,7 +5,7 @@ const API_KEY = import.meta.env.VITE_PAYSHARE_API_KEY;
 const BASE_URL = API_URL.endsWith('/') ? API_URL : `${API_URL}/`;
 
 
-export const payshareLogin = async (email, password) => {
+export const login = async (email, password) => {
     try {
         const loginForm = {
             'email': email,
@@ -38,7 +38,7 @@ export const payshareLogin = async (email, password) => {
     }
 }
 
-export const payshareCreateGroup = async (name) => {
+export const createGroup = async (name) => {
     try {
 
         const authToken = localStorage.getItem('authToken');
@@ -48,17 +48,8 @@ export const payshareCreateGroup = async (name) => {
                 "attributes": {
                     "name": name
                 },
-                // "relationships": {
-                //     "owner": {
-                //         "data": {
-                //             "id" : 11
-                //         }
-                //     }
-                // }
             }
         }
-
-        console.log(groupForm);
 
         const response = await axios.post(
             `${BASE_URL}v1/groups`,
@@ -71,7 +62,7 @@ export const payshareCreateGroup = async (name) => {
             }
         );
 
-        console.log(response);
+        return { success: true, message: "Group created." };
         
     } catch (error) {
         if(error.response && (error.response.status == 422 || error.response.status == 401)){
@@ -81,5 +72,25 @@ export const payshareCreateGroup = async (name) => {
             const errorMessage = 'Error creating group: ' + error.message;
             return { success: false, message: errorMessage };
         }
+    }
+}
+
+export const getGroups = async () => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.get(
+            `${BASE_URL}v1/groups`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching groups: ', error);
     }
 }

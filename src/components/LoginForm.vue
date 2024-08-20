@@ -24,7 +24,7 @@
 </template>
 
 <script>
-    import { payshareLogin } from '../api/payshare-api';
+    import { login } from '../api/payshare-api';
 
     export default {
         data() {
@@ -36,7 +36,7 @@
         },
         methods: {
             async login() {
-                const response = await payshareLogin(email.value, password.value);
+                const response = await login(email.value, password.value);
                 if(response.success){
                     return this.$router.push('/');
                 } else {

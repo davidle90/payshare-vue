@@ -1,5 +1,5 @@
 <template>
-    <div class="w-4/5 mx-auto py-12 my-5">
+    <div class="w-4/5 mx-auto">
         <h1 class="text-white mb-4 text-2xl font-bold sm:text-4xl text-center">
             PayShare
         </h1>
@@ -9,18 +9,18 @@
         </div>
         
         <div class="relative overflow-x-auto rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+            <table class="w-full text-left rtl:text-right text-gray-500">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3">
-                            PayShare Group Name
+                            PayShare Group
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="go-to-url cursor-pointer bg-white border-b">
+                    <tr v-for="group in groups" :key="group.id" class="cursor-pointer bg-white border-b">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            Group Name
+                            {{ group.attributes.name }}
                         </th>
                     </tr>
                 </tbody>
@@ -29,5 +29,18 @@
     </div>
 </template>
   
-<script setup>
+<script>
+    import { getGroups } from '@/api/payshare-api';    
+
+    export default {
+        data() {
+            return {
+                groups: [],
+            }
+        },
+        async created() {
+            const response = await getGroups();
+            this.groups = response.data;            
+        }
+    }
 </script>
