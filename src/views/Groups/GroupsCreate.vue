@@ -22,7 +22,7 @@
 </template>
 
 <script>
-    import { payshareCreateGroup } from '@/api/payshare-api';
+    import { createGroup } from '@/api/payshare-api';
 
     export default {
         data() {
@@ -33,10 +33,10 @@
         },
         methods: {
             async createGroup() {
-                const response = await payshareCreateGroup(group_name.value);
+                const response = await createGroup(group_name.value);
 
                 if(response.success){
-                    console.log(response);
+                    return this.$router.push('/groups');
                 } else {
                     this.errorMessage = response.message;
                 }      
