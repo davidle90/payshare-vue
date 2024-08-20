@@ -1,18 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
-import GroupsView from '../views/GroupsView.vue'
-import FriendsView from '../views/FriendsView.vue'
-import AccountView from '../views/AccountView.vue'
+import GroupsIndex from '@/views/Groups/GroupsIndex.vue'
+import GroupsCreate from '@/views/Groups/GroupsCreate.vue'
+import FriendsIndex from '@/views/Friends/FriendsIndex.vue'
+import AccountIndex from '@/views/Account/AccountIndex.vue'
+import NotFound from '@/views/NotFound.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      component: NotFound,
+      meta: { requiresAuth: false, showHeader: true }
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { requiresAuth: false, showHeader: false }
+      meta: { requiresAuth: false, showHeader: true }
     },
     {
       path: '/',
@@ -23,19 +31,25 @@ const router = createRouter({
     {
       path: '/groups',
       name: 'groups',
-      component: GroupsView,
+      component: GroupsIndex,
+      meta: { requiresAuth: true, showHeader: true }
+    },
+    {
+      path: '/groups/create',
+      name: 'groupsCreate',
+      component: GroupsCreate,
       meta: { requiresAuth: true, showHeader: true }
     },
     {
       path: '/friends',
       name: 'friends',
-      component: FriendsView,
+      component: FriendsIndex,
       meta: { requiresAuth: true, showHeader: true }
     },
     {
       path: '/account',
       name: 'account',
-      component: AccountView,
+      component: AccountIndex,
       meta: { requiresAuth: true, showHeader: true }
     },
   ]
