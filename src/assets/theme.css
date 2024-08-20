@@ -1,15 +1,31 @@
-.theme-primary-color {
+.bg-theme-primary {
     background-color: #3f61b5;
 }
-
-.theme-secondary-color {
+.bg-theme-secondary {
     background-color: #40e0d0;
 }
-
-.theme-accent-color {
+.bg-theme-accent {
     background-color: #ff7f50;
 }
-
-.theme-bg-color {
+.bg-theme-light {
     background-color: #f5f5dc;
+}
+.bg-theme-dark {
+    background-color: #36454F;
+}
+
+.text-theme-primary {
+    color: #3f61b5;
+}
+.text-theme-secondary {
+    color: #40e0d0;
+}
+.text-theme-accent {
+    color: #ff7f50;
+}
+.text-theme-light {
+    color: #f5f5dc;
+}
+.text-theme-dark {
+    color: #36454F;
 }
