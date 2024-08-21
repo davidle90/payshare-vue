@@ -18,7 +18,6 @@
 
         <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
     </div>
-    
 </template>
 
 <script>
