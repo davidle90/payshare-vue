@@ -24,6 +24,9 @@
                         <th scope="col" class="px-6 py-3">
                             Total Expenses
                         </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,6 +42,10 @@
                         </td>
                         <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             {{ group.attributes.totalExpenses }}
+                        </td>
+                        <td scope="row" class="px-6 py-4 font-medium whitespace-nowrap">
+                            <span v-if="group.attributes.isResolved" class="text-green-600">Resolved</span>
+                            <span v-else class="text-yellow-500">Active</span>
                         </td>
                     </tr>
                 </tbody>
