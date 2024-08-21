@@ -2,7 +2,7 @@
     <div class="w-4/5 mx-auto py-12 my-5">
         <h1 class="text-center text-white">Groups Create</h1>
         <div class="mb-3">
-            <a href="/groups" class="border px-3 py-1 text-white">Back</a>
+            <RouterLink :to="{ name: 'groups' }" class="border px-3 py-1 text-white">Back</RouterLink>
         </div>
         <form @submit.prevent="createGroup">
             <div class="mb-4">
@@ -18,7 +18,6 @@
 
         <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
     </div>
-    
 </template>
 
 <script>
@@ -36,7 +35,7 @@
                 const response = await createGroup(group_name.value);
 
                 if(response.success){
-                    return this.$router.push('/groups');
+                    return this.$router.push({name: 'groups'});
                 } else {
                     this.errorMessage = response.message;
                 }      
