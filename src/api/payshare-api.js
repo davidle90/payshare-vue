@@ -130,12 +130,12 @@ export const getAllGroups = async () => {
     }
 }
 
-export const getGroup = async (id) => {
+export const getGroup = async (reference_id) => {
     try {
         const authToken = localStorage.getItem('authToken');
 
         const response = await axios.get(
-            `${BASE_URL}v1/groups/${id}?include=payments,members`,
+            `${BASE_URL}v1/groups/${reference_id}?include=payments,members`,
             {
                 headers: {
                     'Accept': 'application/json',
@@ -150,17 +150,35 @@ export const getGroup = async (id) => {
     }
 }
 
-export const deleteGroup = async () => {
+export const deleteGroup = async (reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.delete(
+            `${BASE_URL}v1/groups/${reference_id}`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return { success: true, message: "Group deleted." };
+    } catch (error) {
+        const errorMessage = 'Error deleting group: ' + error.message;
+            return { success: false, message: errorMessage };
+    }
 }
 
-export const createPayment = async (group_reference_id, name, contributors, participants) => {
+export const createPayment = async (group_reference_id, label, contributors, participants) => {
     try {
         const authToken = localStorage.getItem('authToken');
 
         const form = {
             "data": {
                 "attributes": {
-                    "label": name
+                    "label": label
                 },
                 "relationships": {
                     "contributors": contributors,
@@ -193,20 +211,133 @@ export const createPayment = async (group_reference_id, name, contributors, part
     }
 }
 
-export const editPayment = async () => {
+export const editPayment = async (group_reference_id, payment_reference_id, label, contributors, participants) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const form = {
+            "data": {
+                "attributes": {
+                    "label": label
+                },
+                "relationships": {
+                    "contributors": contributors,
+                    "participants": participants
+                }
+            }
+        }        
+
+        const response = await axios.post(
+            `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
+            form,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return { success: true, message: "Payment updated." };
+
+    } catch (error) {
+        if(error.response && (error.response.status == 422 || error.response.status == 401)){
+            const errorMessage = 'Validation error';
+            return { success: false, message: errorMessage };
+        } else {           
+            const errorMessage = 'Error updating payment: ' + error.message;
+            return { success: false, message: errorMessage };
+        }
+    }
 }
 
-export const getPayment = async () => {
+export const getPayment = async (group_reference_id, payment_reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.get(
+            `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching payment: ', error);
+    }
 }
 
-export const getAllPayments = async () => {
+export const getAllPayments = async (group_reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.get(
+            `${BASE_URL}v1/groups/${group_reference_id}/payments`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching payments: ', error);
+    }
 }
 
-export const deletePayment = async () => {
+export const deletePayment = async (group_reference_id, payment_reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.delete(
+            `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return { success: true, message: "Payment deleted." };
+    } catch (error) {
+        const errorMessage = 'Error deleting payment: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
 }
 
-export const addMembers = async () => {
-}
+export const addOrRemoveMembers = async (group_reference_id, member_ids = [], action = 'add') => {
+    try {
+        const authToken = localStorage.getItem('authToken');
 
-export const removeMembers = async () => {
+        const post_action = action == 'add' ? 'add-members' : 'remove-members';
+
+        const form = {
+            "data": {
+                "attributes": {
+                    "member_ids": member_ids
+                }
+            }
+        }   
+
+        const response = await axios.post(
+            `${BASE_URL}v1/groups/${group_reference_id}/${post_action}`,
+            form,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+    } catch (error) {
+        const errorMessage = 'Error managing members: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
 }

@@ -19,19 +19,21 @@
                         v-for="member in members"
                         :key="member.id"
                         :title="member.attributes.name"
-                        class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center"
+                        class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center hover:border-green-600 hover:text-green-600"
                         >
                             {{ member.attributes.name[0] }}
                     </span>
                     <span
                         title="Add member"
-                        class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center text-2xl bg-gray-500"
+                        class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center text-2xl bg-gray-500 hover:bg-gray-600"
                         >
                             +
                     </span>
                 </div>  
             </div>
         </div>
+
+        <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
 
         <div class="flex justify-between mb-3 sm:mb-0">
             <div class="mb-4 sm:mb-4">
@@ -48,7 +50,7 @@
                     <span class="cursor-pointer border px-3 py-1">Resolve</span>
                 </div>
                 <div>
-                    <span class="cursor-pointer border px-3 py-1 bg-red-400">Delete</span>
+                    <span @click="deleteGroup" class="cursor-pointer border px-3 py-1 bg-red-500 hover:bg-red-600">Delete</span>
                 </div>
             </div> 
         </div>
@@ -85,7 +87,7 @@
 </template>
 
 <script>
-import { getGroup, editGroup } from '@/api/payshare-api';
+import { getGroup, editGroup, deleteGroup } from '@/api/payshare-api';
 import { nextTick } from 'vue';
 
     export default {
@@ -96,6 +98,7 @@ import { nextTick } from 'vue';
                 payments: [],
                 groupName: '',
                 isEditing: false,
+                errorMessage: '',
             }
         },
         props: ['id'],
@@ -116,20 +119,29 @@ import { nextTick } from 'vue';
             },
             startEditing() {
                 this.isEditing = true;
-                this.editedName = this.group.attributes.name; // Pre-fill the input with the current group name
+                this.editedName = this.group.attributes.name;
                 nextTick(() => {
                     // Focus the input field after the DOM update
                     this.$refs.editInput.focus();
                 });
             },
             async saveChanges() {
-                this.isEditing = false; // Switch back to view mode
+                this.isEditing = false;
                 const response = await editGroup(this.group.attributes.reference_id, this.editedName);
 
                 this.groupName = response.data.attributes.name;
             },
             cancelEditing() {
-                this.isEditing = false; // Switch back to view mode without saving changes
+                this.isEditing = false;
+            },
+            async deleteGroup() {
+                const response = await deleteGroup(this.id);
+
+                if(response.success){
+                    return this.$router.push({ name: 'groups' });
+                } else {
+                    this.errorMessage = response.message;
+                }
             }
         }
     }
