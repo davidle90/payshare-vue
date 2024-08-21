@@ -5,7 +5,7 @@
         </h1>
 
         <div class="mb-3">
-            <a href="/groups/create" class="border px-3 py-1 text-white">Create group</a>
+            <RouterLink :to="{ name: 'groupsCreate' }" class="border px-3 py-1 text-white">Add group</RouterLink>
         </div>
         
         <div class="relative overflow-x-auto rounded-lg">
@@ -15,13 +15,31 @@
                         <th scope="col" class="px-6 py-3">
                             PayShare Group
                         </th>
+                        <th scope="col" class="px-6 py-3">
+                            Latest Activities
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Your Expenses
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Total Expenses
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="group in groups" :key="group.id" class="cursor-pointer bg-white border-b">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    <tr v-for="group in groups" :key="group.id" @click="goToUrl(group.attributes.reference_id)" class="cursor-pointer bg-white border-b">
+                        <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             {{ group.attributes.name }}
-                        </th>
+                        </td>
+                        <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            todo
+                        </td>
+                        <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            todo
+                        </td>
+                        <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            {{ group.attributes.totalExpenses }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -30,7 +48,7 @@
 </template>
   
 <script>
-    import { getGroups } from '@/api/payshare-api';    
+    import { getAllGroups } from '@/api/payshare-api';    
 
     export default {
         data() {
@@ -39,8 +57,13 @@
             }
         },
         async created() {
-            const response = await getGroups();
-            this.groups = response.data;            
+            const response = await getAllGroups();
+            this.groups = response.data;           
+        },
+        methods: {
+            goToUrl(groupId) {
+                this.$router.push({ name: 'groupsView', params: { id: groupId }})
+            }
         }
     }
 </script>
