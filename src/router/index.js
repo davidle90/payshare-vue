@@ -4,7 +4,6 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import GroupsIndex from '@/views/Groups/GroupsIndex.vue'
 import GroupsCreate from '@/views/Groups/GroupsCreate.vue'
-import GroupsEdit from '@/views/Groups/GroupsEdit.vue'
 import GroupsView from '@/views/Groups/GroupsView.vue'
 import PaymentsCreate from '@/views/Groups/Payments/PaymentsCreate.vue'
 import PaymentsEdit from '@/views/Groups/Payments/PaymentsEdit.vue'
@@ -44,13 +43,6 @@ const router = createRouter({
       name: 'groupsCreate',
       component: GroupsCreate,
       meta: { requiresAuth: true, showHeader: true }
-    },
-    {
-      path: '/groups/:id/edit',
-      name: 'groupsEdit',
-      component: GroupsEdit,
-      meta: { requiresAuth: true, showHeader: true },
-      props: true
     },
     {
       path: '/groups/:id',
