@@ -5,7 +5,7 @@
         </h1>
 
         <div class="mb-3">
-            <RouterLink :to="{ name: 'groupsCreate' }" class="border px-3 py-1 text-white">Add group</RouterLink>
+            <RouterLink :to="{ name: 'groupsCreate' }" class="border px-3 py-1 text-white hover:bg-gray-600">Add group</RouterLink>
         </div>
         
         <div class="relative overflow-x-auto rounded-lg">

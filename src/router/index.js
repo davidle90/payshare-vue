@@ -6,7 +6,6 @@ import GroupsIndex from '@/views/Groups/GroupsIndex.vue'
 import GroupsCreate from '@/views/Groups/GroupsCreate.vue'
 import GroupsView from '@/views/Groups/GroupsView.vue'
 import PaymentsCreate from '@/views/Groups/Payments/PaymentsCreate.vue'
-import PaymentsEdit from '@/views/Groups/Payments/PaymentsEdit.vue'
 import PaymentsView from '@/views/Groups/Payments/PaymentsView.vue'
 import FriendsIndex from '@/views/Friends/FriendsIndex.vue'
 import AccountIndex from '@/views/Account/AccountIndex.vue'
@@ -55,13 +54,6 @@ const router = createRouter({
       path: '/groups/:id/payments/create',
       name: 'paymentsCreate',
       component: PaymentsCreate,
-      meta: { requiresAuth: true, showHeader: true },
-      props: true
-    },
-    {
-      path: '/groups/:group_id/payments/:payment_id/edit',
-      name: 'paymentsEdit',
-      component: PaymentsEdit,
       meta: { requiresAuth: true, showHeader: true },
       props: true
     },

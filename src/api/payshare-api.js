@@ -74,17 +74,18 @@ export const createGroup = async (name) => {
     }
 }
 
-export const editGroup = async (reference_id, name) => {
+export const editGroup = async (reference_id, name, isResolved) => {
     try {
         const authToken = localStorage.getItem('authToken');
 
         const form = {
             "data": {
                 "attributes": {
-                    "name": name
+                    "name": name,
+                    "isResolved": isResolved
                 },
             }
-        }
+        }        
 
         const response = await axios.patch(
             `${BASE_URL}v1/groups/${reference_id}`,
