@@ -225,9 +225,9 @@ export const editPayment = async (group_reference_id, payment_reference_id, labe
                     "participants": participants
                 }
             }
-        }        
+        }      
 
-        const response = await axios.post(
+        const response = await axios.patch(
             `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
             form,
             {
@@ -238,13 +238,13 @@ export const editPayment = async (group_reference_id, payment_reference_id, labe
             }
         );
 
-        return { success: true, message: "Payment updated." };
+        return response.data;
 
-    } catch (error) {
+    } catch (error) {        
         if(error.response && (error.response.status == 422 || error.response.status == 401)){
-            const errorMessage = 'Validation error';
+            const errorMessage = 'Validation error';            
             return { success: false, message: errorMessage };
-        } else {           
+        } else {        
             const errorMessage = 'Error updating payment: ' + error.message;
             return { success: false, message: errorMessage };
         }
@@ -256,7 +256,7 @@ export const getPayment = async (group_reference_id, payment_reference_id) => {
         const authToken = localStorage.getItem('authToken');
 
         const response = await axios.get(
-            `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
+            `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}?include=contributors,participants,group`,
             {
                 headers: {
                     'Accept': 'application/json',

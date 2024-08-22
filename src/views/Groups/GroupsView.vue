@@ -65,7 +65,7 @@
                     <th scope="col" class="px-6 py-3">Total</th>
                 </thead>
                 <tbody>
-                    <tr v-for="payment in payments" :key="payment.id" class="cursor-pointer bg-white border-b">
+                    <tr v-for="payment in payments" :key="payment.id" @click="goToUrl(payment.attributes.reference_id)" class="cursor-pointer bg-white border-b">
                         <td class="px-6 py-4">{{ formatDate(payment.attributes.createdAt) }}</td>
                         <td class="px-6 py-4">{{ payment.attributes.label}}</td>
                         <td class="px-6 py-4">
@@ -117,6 +117,10 @@ import { nextTick } from 'vue';
                 const month = monthNames[date.getMonth()];
                 return `${day} ${month}`;
             },
+            goToUrl(paymentId) {                
+                this.$router.push({ name: 'paymentsView', params: { group_id: this.group.attributes.reference_id, payment_id: paymentId }})
+            },
+
             startEditing() {
                 this.isEditing = true;
                 this.editedName = this.group.attributes.name;
