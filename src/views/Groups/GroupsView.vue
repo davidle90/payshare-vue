@@ -120,7 +120,6 @@ import { nextTick } from 'vue';
             goToUrl(paymentId) {                
                 this.$router.push({ name: 'paymentsView', params: { group_id: this.group.attributes.reference_id, payment_id: paymentId }})
             },
-
             startEditing() {
                 this.isEditing = true;
                 this.editedName = this.group.attributes.name;
