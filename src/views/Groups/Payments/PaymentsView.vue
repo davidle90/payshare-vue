@@ -1,20 +1,26 @@
 <template>
     <div v-if="payment.attributes">
 
-        <div v-if="!isEditing" class="flex justify-center items-center gap-4">
-            <h1 class="text-center text-3xl text-white">{{ paymentLabel }}</h1>
-            <button @click="startEditing" class="border px-2 py-1 text-xs">Edit</button>
+        <div v-if="!isEditing" class="flex justify-center items-center gap-4 text-white">
+            <h1 class="text-center text-3xl">{{ paymentLabel }}</h1>
+            <button @click="startEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Edit</button>
         </div>
 
-        <div v-else class="flex justify-center items-center gap-4">
+        <div v-else class="flex justify-center items-center gap-4 text-white">
             <input ref="editInput" v-model="editedLabel" class="text-center text-3xl bg-transparent w-1/4" />
-            <button @click="saveChanges" class="border px-2 py-1 text-xs">Save</button>
-            <button @click="cancelEditing" class="border px-2 py-1 text-xs">Cancel</button>
+            <button @click="saveChanges" class="border px-2 py-1 text-xs hover:bg-green-700">Save</button>
+            <button @click="cancelEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Cancel</button>
         </div>
 
-        <div class="mb-3">
-            <RouterLink :to="{ name: 'groupsView', params: { id: groupId } }" class="border px-3 py-1 text-white">Back</RouterLink>
+        <div class="flex justify-between mb-3 text-white">
+            <div>
+                <RouterLink :to="{ name: 'groupsView', params: { id: groupId } }" class="border px-3 py-1 hover:bg-gray-600">Back</RouterLink>
+            </div>
+            <div>
+                <span @click="deletePayment" class="cursor-pointer border px-3 py-1 bg-red-600 hover:bg-red-700">Delete</span>
+            </div>
         </div>
+        
 
         <div class="flex justify-center items-center gap-8 text-white mt-6">
             <div class="border p-4">
@@ -31,6 +37,7 @@
             </div>
         </div>
 
+        <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
     </div>
 </template>
 
@@ -91,12 +98,12 @@ export default {
             this.isEditing = false;
         },
         async deletePayment() {
-            //const response = await deletePayment(this.id);
+            const response = await deletePayment(this.group_id, this.payment_id);
 
             if(response.success){
-            // return this.$router.push({ name: 'groupsView' });
+                return this.$router.push({ name: 'groupsView', params: { id: this.group_id } });
             } else {
-            // this.errorMessage = response.message;
+                this.errorMessage = response.message;
             }
         }
     }

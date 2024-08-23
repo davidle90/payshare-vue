@@ -3,13 +3,17 @@
 
         <div v-if="!isEditing" class="flex justify-center items-center gap-4">
             <h1 class="text-center text-3xl">{{ groupName }}</h1>
-            <button @click="startEditing" class="border px-2 py-1 text-xs">Edit</button>
+            <button @click="startEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Edit</button>
         </div>
 
         <div v-else class="flex justify-center items-center gap-4">
             <input ref="editInput" v-model="editedName" class="text-center text-3xl bg-transparent w-1/4" />
-            <button @click="saveChanges" class="border px-2 py-1 text-xs">Save</button>
-            <button @click="cancelEditing" class="border px-2 py-1 text-xs">Cancel</button>
+            <button @click="saveChanges" class="border px-2 py-1 text-xs hover:bg-green-700">Save</button>
+            <button @click="cancelEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Cancel</button>
+        </div>
+
+        <div class="flex justify-center items-center">
+            <span>ID: {{ groupId }}</span>
         </div>
 
         <div class="flex justify-center my-5">
@@ -23,12 +27,12 @@
                         >
                             {{ member.attributes.name[0] }}
                     </span>
-                    <span
+                    <!-- <span
                         title="Add member"
                         class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center text-2xl bg-gray-500 hover:bg-gray-600"
                         >
                             +
-                    </span>
+                    </span> -->
                 </div>  
             </div>
         </div>
@@ -37,20 +41,24 @@
 
         <div class="flex justify-between mb-3 sm:mb-0">
             <div class="mb-4 sm:mb-4">
-                <RouterLink :to="{ name: 'groups' }" class="border px-3 py-1">Back</RouterLink>
+                <RouterLink :to="{ name: 'groups' }" class="border px-3 py-1 hover:bg-gray-600">Back</RouterLink>
             </div>
             <div class="sm:flex justify-end space-y-4 sm:space-y-0">
                 <div>
-                    <RouterLink :to="{ name: 'paymentsCreate' }" class="border px-3 py-1">Add payment</RouterLink>
+                    <RouterLink :to="{ name: 'paymentsCreate' }" class="border px-3 py-1 hover:bg-gray-600">Add payment</RouterLink>
                 </div>
                 <div>
-                    <span class="cursor-pointer border px-3 py-1">Charts</span>
+                    <span class="cursor-pointer border px-3 py-1 hover:bg-gray-600">Charts</span>
                 </div>
                 <div>
-                    <span class="cursor-pointer border px-3 py-1">Resolve</span>
+                    <span v-if="isResolved" @click="toggleResolved(false)" class="cursor-pointer border px-3 py-1 bg-green-700 hover:bg-green-800">Resolved</span>
+                    <span v-else @click="toggleResolved(true)" class="cursor-pointer border px-3 py-1 hover:bg-gray-600">Resolve</span>
                 </div>
                 <div>
-                    <span @click="deleteGroup" class="cursor-pointer border px-3 py-1 bg-red-500 hover:bg-red-600">Delete</span>
+                    <span @click="deleteGroup" class="cursor-pointer border px-3 py-1 bg-red-600 hover:bg-red-700">Delete</span>
+                </div>
+                <div>
+                    <span @click="leaveGroup" class="cursor-pointer border px-3 py-1 bg-purple-600 hover:bg-purple-700">Leave group</span>
                 </div>
             </div> 
         </div>
@@ -87,7 +95,7 @@
 </template>
 
 <script>
-import { getGroup, editGroup, deleteGroup } from '@/api/payshare-api';
+import { getGroup, editGroup, deleteGroup, leaveGroup } from '@/api/payshare-api';
 import { nextTick } from 'vue';
 
     export default {
@@ -97,8 +105,10 @@ import { nextTick } from 'vue';
                 members: [],
                 payments: [],
                 groupName: '',
+                groupId: '',
                 isEditing: false,
                 errorMessage: '',
+                isResolved: null,
             }
         },
         props: ['id'],
@@ -108,6 +118,8 @@ import { nextTick } from 'vue';
             this.members = response.data.includes.members;
             this.payments = response.data.includes.payments;
             this.groupName = response.data.attributes.name;
+            this.groupId = response.data.attributes.reference_id;
+            this.isResolved = response.data.attributes.isResolved;
         },
         methods: {
             formatDate(dateString) {
@@ -145,6 +157,21 @@ import { nextTick } from 'vue';
                 } else {
                     this.errorMessage = response.message;
                 }
+            },
+            async leaveGroup() {
+                const response = await leaveGroup(this.groupId);
+
+                if(response.success){
+                    return this.$router.push({ name: 'groups' });
+                } else {
+                    this.errorMessage = response.message;
+                }
+            },
+            async toggleResolved(doResolve) {
+                
+                const resolve = doResolve ? true : false;
+                const response = await editGroup(this.group.attributes.reference_id, this.groupName, resolve);
+                this.isResolved = response.data.attributes.isResolved;
             }
         }
     }

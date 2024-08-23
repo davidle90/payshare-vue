@@ -22,7 +22,9 @@ export const login = async (email, password) => {
         );
 
         const token = response.data.data.token;
+        const user_reference = response.data.data.user_reference;
         localStorage.setItem('authToken', token);
+        localStorage.setItem('user_reference', user_reference);
 
         return { success: true, message: "Authenticated" };
 
@@ -34,6 +36,50 @@ export const login = async (email, password) => {
             const errorMessage = 'Login failed: ' + error.message;
             return { success: false, message: errorMessage };
         }
+    }
+}
+
+export const logout = async () => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const response = await axios.post(
+            `${BASE_URL}logout`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return { success: true, message: 'Successfully logged out.' };
+
+    } catch (error) {
+        const errorMessage = 'Error while logging out: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
+}
+
+export const getUserData = async () => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        const user_reference_id = localStorage.getItem('user_reference');
+
+        const response = await axios.get(
+            `${BASE_URL}v1/users/${user_reference_id}?include=groups`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        const errorMessage = 'Error fetching user data: ' + error.message;
+        return { success: false, message: errorMessage };
     }
 }
 
@@ -74,17 +120,18 @@ export const createGroup = async (name) => {
     }
 }
 
-export const editGroup = async (reference_id, name) => {
+export const editGroup = async (reference_id, name, isResolved) => {
     try {
         const authToken = localStorage.getItem('authToken');
 
         const form = {
             "data": {
                 "attributes": {
-                    "name": name
+                    "name": name,
+                    "isResolved": isResolved
                 },
             }
-        }
+        }        
 
         const response = await axios.patch(
             `${BASE_URL}v1/groups/${reference_id}`,
@@ -336,8 +383,65 @@ export const addOrRemoveMembers = async (group_reference_id, member_ids = [], ac
                 }
             }
         );
+
+        return { success: true, message: 'Success' };
+
     } catch (error) {
         const errorMessage = 'Error managing members: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
+}
+
+export const joinGroup = async (group_reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const form = {
+            "group_reference_id": group_reference_id
+        }   
+
+        const response = await axios.post(
+            `${BASE_URL}v1/users/join-group`,
+            form,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        )
+
+        return { success: true, message: 'You have joined the group.' };
+
+    } catch (error) {       
+        const errorMessage = 'Error joining group: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
+}
+
+export const leaveGroup = async (group_reference_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        const form = {
+            "group_reference_id": group_reference_id
+        }   
+
+        const response = await axios.post(
+            `${BASE_URL}v1/users/leave-group`,
+            form,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            }
+        )
+
+        return { success: true, message: 'You have left the group.' };
+
+    } catch (error) {       
+        const errorMessage = 'Error leaving group: ' + error.message;
         return { success: false, message: errorMessage };
     }
 }

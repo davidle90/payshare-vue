@@ -5,10 +5,15 @@
 </template>
 
 <script>
+import { logout } from '@/api/payshare-api';
+
+
     export default {
         methods: {
-            logout() {
+            async logout() {
+                const response = await logout();
                 localStorage.removeItem('authToken');
+                localStorage.removeItem('user_reference');
                 this.$router.push({ name: 'login' });
             }
         }
