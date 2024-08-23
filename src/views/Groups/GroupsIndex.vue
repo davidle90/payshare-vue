@@ -4,8 +4,14 @@
             PayShare
         </h1>
 
-        <div class="mb-3">
+        <div class="flex justify-between items-center mb-3">
             <RouterLink :to="{ name: 'groupsCreate' }" class="border px-3 py-1 text-white hover:bg-gray-600">Add group</RouterLink>
+            <div>
+                <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
+                <input v-model="groupReferenceId" id="groupReferenceId" type="text" class="mr-2" placeholder="Enter group id...">
+                <span @click="joinGroup" class="cursor-pointer border px-3 py-1 text-white hover:bg-gray-600">Join a group</span>
+            </div>
+            
         </div>
         
         <div class="relative overflow-x-auto rounded-lg">
@@ -55,21 +61,34 @@
 </template>
   
 <script>
-    import { getAllGroups } from '@/api/payshare-api';    
+    import { getUserData, joinGroup } from '@/api/payshare-api';    
 
     export default {
         data() {
             return {
                 groups: [],
+                groupReferenceId: '',
+                errorMessage: '',
             }
         },
         async created() {
-            const response = await getAllGroups();
-            this.groups = response.data;           
+            const response = await getUserData();            
+            this.groups = response.data.includes.groups;           
         },
         methods: {
             goToUrl(groupId) {
                 this.$router.push({ name: 'groupsView', params: { id: groupId }})
+            },
+            async joinGroup() {      
+                                
+                const response = await joinGroup(this.groupReferenceId);
+
+                if(response.success){
+                    const response = await getUserData();            
+                    this.groups = response.data.includes.groups;
+                } else {
+                    this.errorMessage = 'Group not found.';
+                }
             }
         }
     }

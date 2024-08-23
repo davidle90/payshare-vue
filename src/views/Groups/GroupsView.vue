@@ -12,6 +12,10 @@
             <button @click="cancelEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Cancel</button>
         </div>
 
+        <div class="flex justify-center items-center">
+            <span>ID: {{ groupId }}</span>
+        </div>
+
         <div class="flex justify-center my-5">
             <div>
                 <div class="flex gap-4">
@@ -23,12 +27,12 @@
                         >
                             {{ member.attributes.name[0] }}
                     </span>
-                    <span
+                    <!-- <span
                         title="Add member"
                         class="cursor-pointer flex items-center justify-center rounded-full border w-12 h-12 text-center text-2xl bg-gray-500 hover:bg-gray-600"
                         >
                             +
-                    </span>
+                    </span> -->
                 </div>  
             </div>
         </div>
@@ -52,6 +56,9 @@
                 </div>
                 <div>
                     <span @click="deleteGroup" class="cursor-pointer border px-3 py-1 bg-red-600 hover:bg-red-700">Delete</span>
+                </div>
+                <div>
+                    <span @click="leaveGroup" class="cursor-pointer border px-3 py-1 bg-purple-600 hover:bg-purple-700">Leave group</span>
                 </div>
             </div> 
         </div>
@@ -88,7 +95,7 @@
 </template>
 
 <script>
-import { getGroup, editGroup, deleteGroup } from '@/api/payshare-api';
+import { getGroup, editGroup, deleteGroup, leaveGroup } from '@/api/payshare-api';
 import { nextTick } from 'vue';
 
     export default {
@@ -98,6 +105,7 @@ import { nextTick } from 'vue';
                 members: [],
                 payments: [],
                 groupName: '',
+                groupId: '',
                 isEditing: false,
                 errorMessage: '',
                 isResolved: null,
@@ -110,6 +118,7 @@ import { nextTick } from 'vue';
             this.members = response.data.includes.members;
             this.payments = response.data.includes.payments;
             this.groupName = response.data.attributes.name;
+            this.groupId = response.data.attributes.reference_id;
             this.isResolved = response.data.attributes.isResolved;
         },
         methods: {
@@ -142,6 +151,15 @@ import { nextTick } from 'vue';
             },
             async deleteGroup() {
                 const response = await deleteGroup(this.id);
+
+                if(response.success){
+                    return this.$router.push({ name: 'groups' });
+                } else {
+                    this.errorMessage = response.message;
+                }
+            },
+            async leaveGroup() {
+                const response = await leaveGroup(this.groupId);
 
                 if(response.success){
                     return this.$router.push({ name: 'groups' });
