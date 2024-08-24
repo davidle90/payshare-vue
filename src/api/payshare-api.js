@@ -53,6 +53,9 @@ export const logout = async () => {
             }
         );
 
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user_reference');
+
         return { success: true, message: 'Successfully logged out.' };
 
     } catch (error) {
@@ -232,7 +235,7 @@ export const createPayment = async (group_reference_id, label, contributors, par
                     "participants": participants
                 }
             }
-        }        
+        }
 
         const response = await axios.post(
             `${BASE_URL}v1/groups/${group_reference_id}/payments`,
@@ -247,7 +250,7 @@ export const createPayment = async (group_reference_id, label, contributors, par
 
         return { success: true, message: "Payment created." };
 
-    } catch (error) {
+    } catch (error) {        
         if(error.response && (error.response.status == 422 || error.response.status == 401)){
             const errorMessage = 'Validation error';
             return { success: false, message: errorMessage };
@@ -272,7 +275,7 @@ export const editPayment = async (group_reference_id, payment_reference_id, labe
                     "participants": participants
                 }
             }
-        }      
+        }        
 
         const response = await axios.patch(
             `${BASE_URL}v1/groups/${group_reference_id}/payments/${payment_reference_id}`,
@@ -285,7 +288,8 @@ export const editPayment = async (group_reference_id, payment_reference_id, labe
             }
         );
 
-        return response.data;
+        return { success: true, message: 'Payment saved.' };
+
 
     } catch (error) {        
         if(error.response && (error.response.status == 422 || error.response.status == 401)){

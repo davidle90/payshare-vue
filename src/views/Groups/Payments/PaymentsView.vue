@@ -1,17 +1,5 @@
 <template>
     <div v-if="payment.attributes">
-
-        <div v-if="!isEditing" class="flex justify-center items-center gap-4 text-white">
-            <h1 class="text-center text-3xl">{{ paymentLabel }}</h1>
-            <button @click="startEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Edit</button>
-        </div>
-
-        <div v-else class="flex justify-center items-center gap-4 text-white">
-            <input ref="editInput" v-model="editedLabel" class="text-center text-3xl bg-transparent w-1/4" />
-            <button @click="saveChanges" class="border px-2 py-1 text-xs hover:bg-green-700">Save</button>
-            <button @click="cancelEditing" class="border px-2 py-1 text-xs hover:bg-gray-600">Cancel</button>
-        </div>
-
         <div class="flex justify-between mb-3 text-white">
             <div>
                 <RouterLink :to="{ name: 'groupsView', params: { id: groupId } }" class="border px-3 py-1 hover:bg-gray-600">Back</RouterLink>
@@ -21,29 +9,74 @@
             </div>
         </div>
         
-
-        <div class="flex justify-center items-center gap-8 text-white mt-6">
-            <div class="border p-4">
-                <h1>Contributors:</h1>
-                <ul>
-                    <li v-for="member in members" :key="member.id">{{ member.attributes.name }}</li>
-                </ul>
+        <form @submit.prevent="saveChanges">
+            <div class="mb-4">
+                <label class="block text-white text-sm font-bold mb-2" for="payment_label">Label</label>
+                <input v-model="paymentLabel" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="payment_label" type="text" required>
             </div>
-            <div class="border p-4">
-                <h1>Particpants:</h1>
-                <ul>
-                    <li v-for="member in members" :key="member.id">{{ member.attributes.name }}</li>
-                </ul>
+            <div class="flex gap-8 text-white mt-6">
+                <div class="border p-4">
+                    <h1 class="text-center mb-4">Contributors:</h1>
+                    <div v-for="member in members" :key="member.id" class="mb-4">
+                        <div>
+                            <input 
+                                type="checkbox" 
+                                :value="member.id" 
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded"
+                                @change="toggleContributor(member.id)"
+                                :checked="isContributor(member.id)"
+                            >
+                            <label 
+                                class="ms-2 text-sm font-medium text-gray-200"
+                            >{{ member.attributes.name }}</label>
+                        </div>
+                        <input 
+                            type="number" 
+                            min="0" 
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-50 p-1 ml-2"
+                            v-model.number="contributorAmounts[member.id]"
+                            @input="updateContribution(member.id, contributorAmounts[member.id])"
+                        >
+                    </div>
+                </div>
+                <div class="border p-4">
+                    <h1 class="text-center mb-4">Particpants:</h1>
+                    <div v-for="member in members" :key="member.id" class="mb-4">
+                        <div>
+                            <input 
+                                type="checkbox" 
+                                :value="member.id" 
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded"
+                                @change="toggleParticipant(member.id)"
+                                :checked="isParticipant(member.id)"
+                            >
+                            <label 
+                                class="ms-2 text-sm font-medium text-gray-200"
+                            >{{ member.attributes.name }}</label>
+                        </div>
+                        <input 
+                            type="number" 
+                            min="0" 
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-50 p-1 ml-2"
+                            v-model.number="participantAmounts[member.id]"
+                            @input="updateExpenses(member.id, participantAmounts[member.id])"
+                        >
+                    </div>
+                </div>
             </div>
-        </div>
-
+            <div class="mt-6">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+        <p v-if="successMessage" class="text-green-500 mt-6">{{ successMessage }}</p>
         <p v-if="errorMessage" class="text-red-500 mt-6">{{ errorMessage }}</p>
     </div>
 </template>
 
 <script>
 import { deletePayment, editPayment, getPayment } from '@/api/payshare-api';
-import { nextTick } from 'vue';
 
 export default {
     data() {
@@ -51,11 +84,14 @@ export default {
             payment: [],
             members: [],
             group: [],
-            contributors: [{ "id": 11, "amount": 500 }, { "id": 1, "amount": 100 }],
-            participants: [{ "id": 1 }, { "id": 2 }],
+            contributors: [],
+            participants: [],
             paymentLabel: '',
             isEditing: false,
             errorMessage: '',
+            successMessage: '',
+            contributorAmounts: {},
+            participantAmounts: {}
         }
     },
     computed: {
@@ -65,37 +101,90 @@ export default {
     },
     props: ['group_id', 'payment_id'],
     async created() {       
-        const response = await getPayment(this.group_id, this.payment_id);        
+        const response = await getPayment(this.group_id, this.payment_id);
+
         this.payment = response.data;
         this.members = response.data.includes.group.includes.members;
         this.group = response.data.includes.group;
-        // this.contributors = response.data.includes.contributors;
-        // this.participants = response.data.includes.participants;
         this.paymentLabel = response.data.attributes.label;
+
+        response.data.includes.contributors.forEach((contributor, index) => {
+            this.contributors[index] = {
+                id: contributor.attributes.member_id,
+                amount: contributor.attributes.amount
+            };
+
+            this.contributorAmounts[contributor.attributes.member_id] = contributor.attributes.amount;
+        });
+
+        response.data.includes.participants.forEach((participant, index) => {
+            this.participants[index] = {
+                id: participant.attributes.member_id,
+                amount: participant.attributes.amount
+            };
+
+            this.participantAmounts[participant.attributes.member_id] = participant.attributes.amount;
+        });        
     },
     methods: {
-        formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const month = monthNames[date.getMonth()];
-        return `${day} ${month}`;
+        isContributor(contributorId) {
+            return this.contributors.some(contributor => contributor.id === contributorId);
         },
-        startEditing() {
-            this.isEditing = true;
-            this.editedLabel = this.payment.attributes.label;
-            nextTick(() => {
-                // Focus the input field after the DOM update
-                this.$refs.editInput.focus();
-            });
+        isParticipant(participantId) {
+            return this.participants.some(participant => participant.id === participantId);
+        },
+        updateContribution(contributorId, value) {
+            const parsedValue = parseFloat(value) || 0;
+
+            this.contributorAmounts[contributorId] = parsedValue;
+
+            const contributor = this.contributors.find(p => p.id === contributorId);
+            if (contributor) {
+                contributor.amount = parsedValue;
+            } else {
+                this.contributors.push({ id: contributorId, amount: parsedValue });
+            }
+        },
+        updateExpenses(participantId, value) {
+            const parsedValue = parseFloat(value) || 0;
+
+            // Update the participantAmounts object
+            this.participantAmounts[participantId] = parsedValue;
+
+            // Also, update the participants array if needed
+            const participant = this.participants.find(p => p.id === participantId);
+            if (participant) {
+                participant.amount = parsedValue;
+            } else {
+                // If the participant is not in the array, add them
+                this.participants.push({ id: participantId, amount: parsedValue });
+            }
+        },
+        toggleContributor(contributorId) {
+            const index = this.contributors.findIndex(p => p.id === contributorId);
+            if (index === -1) {
+                // Add the participant with default amount 0 if not already in the array
+                this.contributors.push({ id: contributorId, amount: 0 });
+            } else {
+                // Remove the participant if already in the array
+                this.contributors.splice(index, 1);
+            }
+        },
+        toggleParticipant(participantId) {
+            const index = this.participants.findIndex(p => p.id === participantId);
+            if (index === -1) {
+                // Add the participant with default amount 0 if not already in the array
+                this.participants.push({ id: participantId, amount: 0 });
+            } else {
+                // Remove the participant if already in the array
+                this.participants.splice(index, 1);
+            }
         },
         async saveChanges() {
-            this.isEditing = false;
-            const response = await editPayment(this.group.attributes.reference_id, this.payment.attributes.reference_id, this.editedLabel, this.contributors, this.participants);
-            this.paymentLabel = response.data.attributes.label;
-        },
-        cancelEditing() {
-            this.isEditing = false;
+            const response = await editPayment(this.group.attributes.reference_id, this.payment.attributes.reference_id, this.paymentLabel, this.contributors, this.participants);
+            if(response.success){
+                this.successMessage = response.message;
+            }       
         },
         async deletePayment() {
             const response = await deletePayment(this.group_id, this.payment_id);
