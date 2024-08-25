@@ -83,7 +83,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <span v-for="participant in payment.includes.participants" :key="participant.id">
-                                {{ participant.attributes.name }},
+                                {{ participant.attributes.name }}: {{ participant.attributes.amount }},
                             </span>
                         </td>
                         <td class="px-6 py-4">{{ payment.attributes.total }}</td>
