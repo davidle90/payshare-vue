@@ -8,6 +8,7 @@ import SiteFooter from './components/SiteFooter.vue'
 import Navbar from './components/Navbar.vue'
 import LogoutButton from './components/LogoutButton.vue'
 import LoginForm from './components/LoginForm.vue'
+import BalanceTable from './components/BalanceTable.vue'
 
 const app = createApp(App)
 
@@ -17,5 +18,6 @@ app.component('site-footer', SiteFooter);
 app.component('navbar', Navbar);
 app.component('logout-button', LogoutButton);
 app.component('login-form', LoginForm);
+app.component('balance-table', BalanceTable);
 
 app.mount('#app')

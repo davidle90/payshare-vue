@@ -70,7 +70,7 @@ export const getUserData = async () => {
         const user_reference_id = localStorage.getItem('user_reference');
 
         const response = await axios.get(
-            `${BASE_URL}v1/users/${user_reference_id}?include=groups`,
+            `${BASE_URL}v1/users/${user_reference_id}?include=groups,debtsIOwe,debtsOwedToMe`,
             {
                 headers: {
                     'Accept': 'application/json',
@@ -185,7 +185,7 @@ export const getGroup = async (reference_id) => {
         const authToken = localStorage.getItem('authToken');
 
         const response = await axios.get(
-            `${BASE_URL}v1/groups/${reference_id}?include=payments,members`,
+            `${BASE_URL}v1/groups/${reference_id}?include=payments,members,debts`,
             {
                 headers: {
                     'Accept': 'application/json',
@@ -216,6 +216,8 @@ export const deleteGroup = async (reference_id) => {
 
         return { success: true, message: "Group deleted." };
     } catch (error) {
+        console.log(error);
+        
         const errorMessage = 'Error deleting group: ' + error.message;
             return { success: false, message: errorMessage };
     }
@@ -250,7 +252,8 @@ export const createPayment = async (group_reference_id, label, contributors, par
 
         return { success: true, message: "Payment created." };
 
-    } catch (error) {        
+    } catch (error) {     
+        console.log(error)   
         if(error.response && (error.response.status == 422 || error.response.status == 401)){
             const errorMessage = 'Validation error';
             return { success: false, message: errorMessage };
@@ -446,6 +449,28 @@ export const leaveGroup = async (group_reference_id) => {
 
     } catch (error) {       
         const errorMessage = 'Error leaving group: ' + error.message;
+        return { success: false, message: errorMessage };
+    }
+}
+
+export const calculateBalance = async (group_id) => {
+    try {
+        const authToken = localStorage.getItem('authToken');
+
+        // const response = await axios.get(
+        //     `${BASE_URL}v1/groups/${group_id}/calculate-balance`,
+        //     {
+        //         headers: {
+        //             'Accept': 'application/json',
+        //             'Authorization': `Bearer ${authToken}`
+        //         }
+        //     }
+        // )
+
+        return response;
+
+    } catch (error) {        
+        const errorMessage = 'Error calculating balance: ' + error.message;
         return { success: false, message: errorMessage };
     }
 }
