@@ -83,7 +83,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <span v-for="participant in payment.includes.participants" :key="participant.id">
-                                {{ participant.attributes.name }},
+                                {{ participant.attributes.name }}: {{ participant.attributes.amount }},
                             </span>
                         </td>
                         <td class="px-6 py-4">{{ payment.attributes.total }}</td>
@@ -91,11 +91,13 @@
                 </tbody>
             </table>
         </div>
+        <balance-table :debts="debts"></balance-table>
     </div>
 </template>
 
 <script>
 import { getGroup, editGroup, deleteGroup, leaveGroup } from '@/api/payshare-api';
+import BalanceTable from '@/components/BalanceTable.vue';
 import { nextTick } from 'vue';
 
     export default {
@@ -104,6 +106,7 @@ import { nextTick } from 'vue';
                 group: [],
                 members: [],
                 payments: [],
+                debts: [],
                 groupName: '',
                 groupId: '',
                 isEditing: false,
@@ -117,6 +120,7 @@ import { nextTick } from 'vue';
             this.group = response.data;
             this.members = response.data.includes.members;
             this.payments = response.data.includes.payments;
+            this.debts = response.data.includes.debts;
             this.groupName = response.data.attributes.name;
             this.groupId = response.data.attributes.reference_id;
             this.isResolved = response.data.attributes.isResolved;

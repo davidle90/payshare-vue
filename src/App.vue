@@ -9,7 +9,7 @@
 <template>
   <div class="h-screen flex flex-col justify-between bg-theme-dark">
     <site-header v-if="showHeader" bgColor="bg-theme-dark" />
-    <main class="grow">
+    <main class="grow bg-theme-dark">
       <div class="container mx-auto py-6">
         <RouterView />
       </div>
