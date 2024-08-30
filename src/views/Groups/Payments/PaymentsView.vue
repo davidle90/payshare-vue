@@ -162,6 +162,7 @@ export default {
         },
         toggleContributor(contributorId) {
             const index = this.contributors.findIndex(p => p.id === contributorId);
+            
             if (index === -1) {
                 // Add the participant with default amount 0 if not already in the array
                 this.contributors.push({ id: contributorId, amount: 0 });
@@ -182,6 +183,7 @@ export default {
         },
         async saveChanges() {
             const response = await editPayment(this.group.attributes.reference_id, this.payment.attributes.reference_id, this.paymentLabel, this.contributors, this.participants);
+            
             if(response.success){
                 this.successMessage = response.message;
             }       
